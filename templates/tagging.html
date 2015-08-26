@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en" class="no-js">
+	<head>
+		<meta charset="UTF-8" />
+		<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"> 
+		<meta name="viewport" content="width=device-width, initial-scale=1.0"> 
+		<title>Sidebar Transitions</title>
+		<meta name="description" content="Sidebar Transitions: Transition effects for off-canvas views" />
+		<meta name="keywords" content="transition, off-canvas, navigation, effect, 3d, css3, smooth" />
+		<meta name="author" content="Codrops" />
+		<link rel="shortcut icon" href="../favicon.ico">
+		<link rel="stylesheet" type="text/css" href="../static/css/normalize.css" />
+		<link rel="stylesheet" type="text/css" href="../static/css/demo.css" />
+		<link rel="stylesheet" type="text/css" href="../static/css/icons.css" />
+		<link rel="stylesheet" type="text/css" href="../static/css/component.css" />
+		<link rel="stylesheet" type="text/css" href="../static/GoogleChart/css/orgchart.css"  >
+
+		<script type="text/javascript" src="../static/GoogleChart/js/jsapi.js"></script>
+
+		<link rel="stylesheet" media="screen" href="http://fonts.googleapis.com/css?family=Open+Sans:300,400,700">
+		<link rel="stylesheet" href="../static/css/bootstrap.min.css">
+		<link rel="stylesheet" href="../static/css/font-awesome.min.css">
+
+
+		<link rel="stylesheet" type="text/css" href="../static/css/default.css">
+    	<link href="../static/css/fileinput.css" media="all" rel="stylesheet" type="text/css" />
+
+		<!-- Custom styles for our template -->
+		<link rel="stylesheet" href="../static/css/bootstrap-theme.css" media="screen" >
+		<link rel="stylesheet" href="../static/css/main.css">
+
+		<!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
+		<!--[if lt IE 9]>
+		<script src="../static/js/html5shiv.js"></script>
+		<script src="../static/js/respond.min.js"></script>
+		<![endif]-->
+		<script src="../static/js/modernizr.custom.js"></script>
+	</head>
+		<div id="st-container" class="st-container">
+			<!-- 	
+				example menus 
+				these menus will be on top of the push wrapper
+			-->
+
+
+			<nav class="st-menu st-effect-9 bg-primary" id="menu-9" >
+				<h2 class="icon icon-lab" style="color: white">目录</h2>
+				<ul>
+					<li><a class="icon icon-data btn-primary " href="index.html">主页</a></li>
+					<li><a class="icon icon-location btn-primary " href="upload.html">上传素材</a></li>
+					<li><a class="icon icon-study btn-primary" href="segment.html">分割素材</a></li>
+					<li><a class="icon icon-photo btn-primary active" href="tagging.html">标记素材</a></li>
+					<li><a class="icon icon-wallet btn-primary" href="manage.html">管理素材</a></li>
+				</ul>
+			</nav>
+
+
+				<div class="st-content"><!-- this is the wrapper for the content -->
+					<div class="st-content-inner"><!-- extra div for emulating position:fixed of the menu -->
+						<!-- Top Navigation -->
+
+						<header class="codrops-header">
+							<h1>素材标注系统 <span>素材标记</span></h1>
+							<div class="main clearfix text-right">
+								<div id="st-trigger-effects"  >
+									<button data-effect="st-effect-9"class="btn btn-primary btn-lg btn-file">目录</button>
+								</div>
+
+							</div><!-- /main -->
+						</header>
+
+
+
+					</div><!-- /st-content-inner -->
+					<div class="container" >
+						<div class="panel-heading bg-primary text-center">{{table_list[0].get('name')}}</div>
+						<div class="panel-body" id="tree"></div>
+
+
+
+
+					</div>
+
+
+					<div class="container center " >
+						<nav>
+							<ul class="pager">
+								<script type="javascript">
+
+
+								</script>
+
+								<li class="previous" id="old_page"><a href="tagging.html?pagenum={{pagenum-1}}"><span aria-hidden="true">&larr;</span>上一页</a></li>
+								<li class="next" id="next_page"><a href="tagging.html?pagenum={{pagenum+1}}" >下一页<span aria-hidden="true">&rarr;</span></a></li>
+							</ul>
+						</nav>
+					</div>
+
+
+				</div><!-- /st-content -->
+		</div><!-- /st-container -->
+
+
+
+<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+				<form method="post"  onkeydown="if(event.keyCode==13)return false;">
+					<input style="visibility: hidden" name="page_num" value="{{pagenum}}">
+					<input style="visibility: hidden" id="image_path" name="image_path" value="">
+					<div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+                    &times;
+                    </button>
+                    <h4 class="modal-title" id="myModalLabel">
+                        标记素材
+                    </h4>
+                </div>
+
+
+
+                <div class="modal-body" id="modal-body">
+
+                    <img id="modal-body-img" src="" >
+					<div >
+						<p></p>
+
+
+
+						<div class="container">
+							<div class="col-lg-6">
+								<div class="container-fluid center" id="tag_list">
+
+							</div>
+
+						<div class="input-group">
+
+
+
+
+
+							<input id="new_tag_text" type="text" class="form-control" placeholder="在此输入新标签名称">
+							<span class="input-group-btn span12">
+								<button class="btn btn-default" type="button"   onclick="addbtn() ">添加标签</button>
+						  	</span>
+
+						</div><!-- /input-group -->
+								<div class="container" id="tag_list_div">
+							{% for tags,id in allTagList %}
+
+								<label ><input name="tag" class="checkbox bg-primary" type="checkbox" id="tag-{{id}}" value="{{id}}">{{tags}}</label>
+
+							{% end %}
+							</div>
+
+					</div>
+
+						</div>
+
+				</div>
+
+
+			</div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default"
+                        data-dismiss="modal">关闭
+                    </button>
+                    <button id="submit_checkbox" type="submit"  class="btn btn-primary">确定</button>
+                </div>
+
+				</form>
+
+
+
+
+
+
+            </div><!-- /.modal-content -->
+        </div>
+		</div>
+
+
+		<script src="http://libs.useso.com/js/jquery/2.1.1/jquery.min.js"></script>
+    	<script src="../static/js/fileinput.js" type="text/javascript"></script>
+    	<script src="../static/js/fileinput_locale_zh.js" type="text/javascript"></script>
+    	<script src="../static/js/bootstrap.min.js" type="text/javascript"></script>
+
+		<script src="../static/js/classie.js"></script>
+		<script src="../static/js/sidebarEffects.js"></script>
+	 <script type="text/javascript" src="../static/js/jsapi.js"></script>
+    <script type="text/javascript">
+      google.load("visualization", "1", {packages:["orgchart"]});
+      google.setOnLoadCallback(drawChart);
+	  var old_btn = document.getElementById("old_page")
+	  var next_btn = document.getElementById("next_page")
+	  if({{pagenum}}==1){old_btn.setAttribute("class","previous disabled")}else{old_btn.setAttribute("class","previous")}
+	  if({{final_tag}}==1){next_btn.setAttribute("class","next disabled")}else{next_btn.setAttribute("class","next")}
+      function drawChart() {
+        var data = new google.visualization.DataTable();
+        data.addColumn('string', 'Name');
+        data.addColumn('string', 'Manager');
+        data.addColumn('string', 'ToolTip');
+
+        var datalist = new Array()
+
+          {% for eachitem in table_list %}
+              datalist.push([
+                  {v:'{{eachitem.get("name")}}'
+                    ,f:'{{eachitem.get("name")}}' +
+                  '<img class="" data-toggle="modal" data-target="#myModal" onclick=tag_material(this) src= "{{static_url(eachitem.get("path"))}}">'
+                  +'<div class="" id="tags">'
+                  {%for tag in eachitem.get('taglist')%}
+                    +'<a class="label label-success" style="display: inline-block">{{tag}}</a>'
+                  {%end%}   +'</div>'
+                    },
+      '{{eachitem.get("parent_name")}}',
+      '{{eachitem.get("description")}}'
+
+      ])
+          {% end %}
+
+
+
+		  data.addRows(datalist);
+
+        var chart = new google.visualization.OrgChart(document.getElementById('tree'));
+        chart.draw(data, {allowHtml:true,allowCollapse:true,size:"large"});
+      }
+
+
+		function tag_material(e){
+
+        var modal_img = document.getElementById("modal-body-img")
+        modal_img.src = e.src
+        modal_img.style.width = "100%"
+			document.getElementById("image_path").value = e.src
+
+    }
+
+		function addbtn(){
+			text = document.getElementById("new_tag_text").value
+			li = document.createElement("input")
+			li.className = "label btn-info "
+			li.name = "new_tag_names"
+			li.innerHTML = text
+			li.value = text
+			document.getElementById("tag_list").appendChild(li)
+		  document.getElementById("new_tag_text").value = ''
+
+		}
+
+
+
+
+   </script>
+
+
+
+
+	</body>
+</html>

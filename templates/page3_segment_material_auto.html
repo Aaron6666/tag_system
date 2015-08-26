@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8" http-equiv="Content-Type" content="text/html">
+    <title>素材标注系统</title>
+
+    <link href="/static/external_css/bootstrap.min.css" rel="stylesheet">
+
+    <script src="/static/external_js/jquery-2.1.1.min.js"></script>
+    <script src="/static/external_js/bootstrap.min.js"></script>
+
+</head>
+<body>
+
+    <div class="container" style="width: 90%">
+        <div class="row" style="margin: 5% 0%;">
+
+            <div class="col-md-2">
+                <div class="panel-group" id="accordion" style="font-size: 1.2em; font-weight: 900; text-align: center;">
+                    <div class="panel panel-info">
+                        <div class="panel-heading">
+                            <a href="upload_material">上传素材</a>
+                        </div>
+                    </div>
+                    <div class="panel panel-info">
+                        <div class="panel-heading">
+                            <a data-toggle="collapse" data-parent="#accordion" href="#collapseTwo">分割素材</a>
+                        </div>
+                        <div id="collapseTwo" class="panel-collapse collapse">
+                            <div class="panel-body">
+                                <li><a href="segment_material_auto">自动分割</a></li>
+                                <li><a href="segment_material_alter">交互分割</a></li>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="panel panel-info">
+                        <div class="panel-heading">
+                            <a href="tag_material">标注素材</a>
+                        </div>
+                    </div>
+                    <div class="panel panel-info">
+                        <div class="panel-heading">
+                            <a data-toggle="collapse" data-parent="#accordion" href="#">管理素材</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-10">
+
+                <div class="panel panel-primary">
+                    <div class="panel-heading">
+                        <h3 class="panel-title">分割素材</h3>
+                    </div>
+                    <div class="panel-body">
+                        <div class="dropdown" style="margin-bottom: 2%">
+                            <button type="button" class="btn dropdown-toggle btn-primary" id="dropdownMenu1"
+                                data-toggle="dropdown">
+                                分割算法
+                                <span class="caret"></span>
+                            </button>
+                            <ul class="dropdown-menu" role="menu" aria-labelledby="dropdownMenu1">
+                                <li role="presentation">
+                                    <a role="menuitem" tabindex="-1" href="#" id="algorithm1">分割算法1</a>
+                                </li>
+                                <li role="presentation">
+                                    <a role="menuitem" tabindex="-1" href="#" id="algorithm2">分割算法2</a>
+                                </li>
+                                <li role="presentation">
+                                    <a role="menuitem" tabindex="-1" href="#">分割算法3</a>
+                                </li>
+                                <li role="presentation" class="divider"></li>
+                            </ul>
+                        </div>
+
+                        <p id="response"></p>
+
+                        <div class="alert alert-info">未分割图片</div>
+                        <div id="segmented_material">
+                        {% for path in non_segmented_path_list %}
+                            <div style="width: 30%; margin: 1%; display: inline-block">
+                                <a class="thumbnail" style="width: 100%; margin: 1%; display: inline-block">
+                                    <img src="/static/material/{{ path }}">
+                                </a>
+                                <li>{{ path }}</li>
+                                <input type="checkbox" class="checkbox non-seg" style="width: 50px;"/>
+                            </div>
+                        {% endfor %}
+                        </div>
+                        <div id="non_segmented_material">
+                        <div class="alert alert-info">已分割图片</div>
+                        {% for path in segmented_path_list %}
+                            <div style="width: 30%; margin: 1%; display: inline-block">
+                            <a class="thumbnail" style="width: 100%; margin: 1%; display: inline-block">
+                                <img src="/static/material/{{ path }}">
+                            </a>
+                            <li>{{ path }}</li>
+                            </div>
+                        {% endfor %}
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+
+</body>
+</html>
+
+<script type="text/javascript">
+    function preImg(sourceId, targetId) {
+        //预览图片
+        if (typeof FileReader == 'undefined') {
+            alert('Your browser does not support FileReader...');
+            return;
+        }
+
+        var show_img_list = document.getElementById("img_list");
+
+        for (var i=0; i < document.getElementById(sourceId).files.length; i++){
+
+            var reader = new FileReader();
+            reader.onload = function(e) {
+                var img = document.createElement("img");
+                img.src = e.target.result;
+                img.style.width = "30%";
+                img.style.margin = "2%";
+                show_img_list.appendChild(img);
+            }
+
+            reader.readAsDataURL(document.getElementById(sourceId).files[i]);
+        }
+
+    }
+
+    function get_checked_material(){
+        //获取未分割栏里勾选的图片列表
+        var segmented_material_div = document.getElementById("segmented_material")
+        var checked_list = new Array()
+
+        for (var i = 0; i < segmented_material_div.children.length; i += 1){
+            var inner_div = segmented_material_div.children[i]
+            var material_path = inner_div.children[1].textContent
+            var input = inner_div.children[2]
+            if (input.checked){
+                checked_list[checked_list.length] = material_path
+            }
+        }
+
+        for (var i = 0; i < checked_list.length; i ++){
+            alert(checked_list[i])
+        }
+        return checked_list
+    }
+
+    $(function() {
+        //点击分割算法按钮后向后台views.py发送分割材料的路径列表和分割信息，callback回调函数会返回分割结果test_t并在页面中显示（就是上面html里面的response变量）
+        $('#algorithm1').click(function() {
+            var json_obj = {
+                    username: 'abc',
+                    password: '123',
+                    algorithm_type: 'algorithm1',
+                    seg_material_list: get_checked_material()
+
+                    };    //JSON对象
+
+            var json_str = JSON.stringify(json_obj);    //将JSON对象转变成JSON格式的字符串
+
+            $.post("/tagging_system/begin_seg", json_str, callback, "json");
+        })
+
+        function callback(json){
+            $('#response').html('test_t:'+json['test_t']);
+        }
+
+        $('#algorithm2').click(function() {
+            var json_obj = {
+                    username: 'abc',
+                    password: '123',
+                    algorithm_type: 'algorithm2',
+                    seg_material_list: get_checked_material()
+                    };    //JSON对象
+
+            var json_str = JSON.stringify(json_obj);    //将JSON对象转变成JSON格式的字符串
+            $.post("/tagging_system/begin_seg", json_str, callback, "json");
+        })
+    })
+
+</script>

@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="en" class="no-js">
+	<head>
+		<meta charset="UTF-8" />
+		<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"> 
+		<meta name="viewport" content="width=device-width, initial-scale=1.0"> 
+		<title>Sidebar Transitions</title>
+		<meta name="description" content="Sidebar Transitions: Transition effects for off-canvas views" />
+		<meta name="keywords" content="transition, off-canvas, navigation, effect, 3d, css3, smooth" />
+		<meta name="author" content="Codrops" />
+		<link rel="shortcut icon" href="../favicon.ico">
+		<link rel="stylesheet" type="text/css" href="../static/css/normalize.css" />
+		<link rel="stylesheet" type="text/css" href="../static/css/demo.css" />
+		<link rel="stylesheet" type="text/css" href="../static/css/icons.css" />
+		<link rel="stylesheet" type="text/css" href="../static/css/component.css" />
+		<link rel="stylesheet" type="text/css" href="../static/GoogleChart/css/orgchart.css"  >
+
+		<script type="text/javascript" src="../static/GoogleChart/js/jsapi.js"></script>
+
+		<link rel="stylesheet" media="screen" href="http://fonts.googleapis.com/css?family=Open+Sans:300,400,700">
+		<link rel="stylesheet" href="../static/css/bootstrap.min.css">
+		<link rel="stylesheet" href="../static/css/font-awesome.min.css">
+
+
+		<link rel="stylesheet" type="text/css" href="../static/css/default.css">
+    	<link href="../static/css/fileinput.css" media="all" rel="stylesheet" type="text/css" />
+
+		<!-- Custom styles for our template -->
+		<link rel="stylesheet" href="../static/css/bootstrap-theme.css" media="screen" >
+		<link rel="stylesheet" href="../static/css/main.css">
+		<link rel="stylesheet" href="../static/css/jquery.Jcrop.css">
+		<link rel = "stylesheet" href="../static/css/jquery.Jcrop.min.css">
+
+		<!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
+		<!--[if lt IE 9]>
+		<script src="../static/js/html5shiv.js"></script>
+		<script src="../static/js/respond.min.js"></script>
+		<![endif]-->
+		<script src="../static/js/modernizr.custom.js"></script>
+	</head>
+	<body style="background-color: white">
+		<div id="st-container" class="st-container">
+			<!-- 	
+				example menus 
+				these menus will be on top of the push wrapper
+			-->
+
+
+			<nav class="st-menu st-effect-9 bg-primary" id="menu-9" >
+				<h2 class="icon icon-lab" style="color: white">目录</h2>
+				<ul>
+					<li><a class="icon icon-data btn-primary " href="index.html">主页</a></li>
+					<li><a class="icon icon-location btn-primary " href="upload.html">上传素材</a></li>
+					<li><a class="icon icon-study btn-primary active" href="segment.html">分割素材</a></li>
+					<li><a class="icon icon-photo btn-primary" href="tagging.html">标记素材</a></li>
+					<li><a class="icon icon-wallet btn-primary" href="manage.html">管理素材</a></li>
+				</ul>
+			</nav>
+
+
+				<div class="st-content"><!-- this is the wrapper for the content -->
+					<div class="st-content-inner"><!-- extra div for emulating position:fixed of the menu -->
+						<!-- Top Navigation -->
+
+						<header class="codrops-header">
+							<h1>素材标注系统 <span>素材分割</span></h1>
+							<div class="main clearfix text-right">
+								<div id="st-trigger-effects"  >
+									<button data-effect="st-effect-9"class="btn btn-primary btn-lg btn-file">目录</button>
+								</div>
+
+							</div><!-- /main -->
+						</header>
+
+
+
+					</div><!-- /st-content-inner -->
+					<div class="container" >
+						<div class="panel-heading bg-primary text-center">{{table_list[0].get('name')}}</div>
+						<div class="panel-body" id="tree"></div>
+
+
+
+
+					</div>
+
+
+
+					<div class="container center " >
+						<nav>
+							<ul class="pager">
+								<script type="javascript">
+
+
+								</script>
+
+								<li class="previous" id="old_page"><a href="segment.html?pagenum={{pagenum-1}}"><span aria-hidden="true">&larr;</span>上一页</a></li>
+								<li class="next" id="next_page"><a href="segment.html?pagenum={{pagenum+1}}" >下一页<span aria-hidden="true">&rarr;</span></a></li>
+							</ul>
+						</nav>
+					</div>
+
+
+				</div><!-- /st-content -->
+			</div><!-- /st-pusher -->
+		</div><!-- /st-container -->
+
+
+<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" data-backdrop="static">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true" onclick="clean_pots()">
+                    &times;
+                    </button>
+                    <h4 class="modal-title" id="myModalLabel">
+                        分割素材<u id="cur_pic_name"></u>
+                    </h4>
+                </div>
+
+
+                <div class="modal-body" id="modal-body"style="text-align:center; position: relative">
+
+
+                    <a class="thumbnail small" style="overflow-x: auto;text-align:center;  width: 100%; margin: 1%; display: inline-block" >
+                        <img id="modal-body-img" class="small" src="/static/material/abc_KGDZ014.BMP" class="" style="width:10;height:10%" />
+                    </a>
+                    <div id="preview-panel">
+                        <div class="preview-container">
+                            <canvas id = "preview-canvas"  class="jcrop-preview" alt="Preview" />
+                        </div>
+                        <button type="button" class="btn btn-default" onclick="draw_fg()">前景标记</button>
+                        <button type="button" class="btn btn-default" onclick="draw_bg()">背景标记</button>
+                    </div>
+
+
+                </div>
+
+
+                <div class="modal-footer" style="text-align: center">
+
+                    <button type="button" class="btn btn-default"
+                        data-dismiss="modal" >关闭
+                    </button>
+                    <button id="submit_checkbox" type="submit" class="btn btn-primary" data-dismiss="modal"  >确定</button>
+                </div>
+
+            </div><!-- /.modal-content -->
+        </div>
+    </div>
+
+		<script src="http://libs.useso.com/js/jquery/2.1.1/jquery.min.js"></script>
+    	<script src="../static/js/fileinput.js" type="text/javascript"></script>
+    	<script src="../static/js/fileinput_locale_zh.js" type="text/javascript"></script>
+    	<script src="../static/js/bootstrap.min.js" type="text/javascript"></script>
+
+		<script src="../static/js/classie.js"></script>
+		<script src="../static/js/sidebarEffects.js"></script>
+	 <script type="text/javascript" src="../static/js/jsapi.js"></script>
+		<script src="../static/js/jquery.Jcrop.js" type="text/javascript"></script>
+    <script type="text/javascript">
+      google.load("visualization", "1", {packages:["orgchart"]});
+      google.setOnLoadCallback(drawChart);
+      function drawChart() {
+		  var data = new google.visualization.DataTable();
+		  data.addColumn('string', 'Name');
+		  data.addColumn('string', 'Manager');
+		  data.addColumn('string', 'ToolTip');
+
+          var datalist = new Array()
+
+          {% for eachitem in table_list %}
+              datalist.push([
+                  {v:'{{eachitem.get("name")}}'
+                    ,f:'{{eachitem.get("name")}}' +
+                  '<img class="" data-toggle="modal" data-target="#myModal" onclick=tag_material(this) src= "{{static_url(eachitem.get("path"))}}">'
+                  +'<div class="">'
+                  {%for tag in eachitem.get('taglist')%}
+                    +'<a class="label label-success" style="display: inline-block">{{tag}}</a>'
+                  {%end%}   +'</div>'
+                    },
+      '{{eachitem.get("parent_name")}}',
+      '{{eachitem.get("description")}}'
+
+      ])
+          {% end %}
+
+
+
+		  data.addRows(datalist);
+		  //          模板语言是否可以和js整合？
+
+		  var chart = new google.visualization.OrgChart(document.getElementById('tree'));
+		  chart.draw(data, {allowHtml: true, allowCollapse: true, size: "large"});
+
+
+
+    }
+   </script>
+	<script type="text/javascript">
+
+    //轨迹路径列表
+    var trace_list_x_fg = [];
+    var trace_list_y_fg = [];
+    var trace_list_x_bg = [];
+    var trace_list_y_bg = [];
+
+    //判断当前是否绘制轨迹的参数
+    var trace_now = false;
+
+    //点击图片之后会出现悬浮框，下面的参数记录了悬浮框上的图片的位置和窗口滚动参数，用于绘制轨迹的时候计算轨迹的位置
+    var img_top;
+    var img_left;
+    var img_width;
+    var img_height;
+    var scroll_top;
+
+    var jcrop_api;
+    var flag = false;
+    var is_fg = false;
+    var is_bg = false;
+
+    document.ondragstart = function() {
+        return false;
+    };
+    var canvas = document.getElementById("preview-canvas");
+    var context = canvas.getContext("2d");
+    var color;
+
+    function draw_point(e)
+    {
+
+        if (flag)
+        {
+            var bbox = canvas. getBoundingClientRect();
+            var x = e.pageX-bbox.left;
+            var y = e.pageY-bbox.top-getScrollTop();
+
+            if(is_fg)
+            {
+                color = "#FFFFFF";
+                trace_list_x_fg[trace_list_x_fg.length] = parseInt(x);
+                trace_list_y_fg[trace_list_y_fg.length] = parseInt(y);
+
+            }else if(is_bg)
+            {
+                color = "#000000";
+                trace_list_x_bg[trace_list_x_bg.length] = parseInt(x);
+                trace_list_y_bg[trace_list_y_bg.length] = parseInt(y);
+
+            }
+            //var windows = document.getElementById("myModal");
+
+            //var y = e.pageY-canvas.offsetTop-windows.offsetHeight;
+
+            context.fillStyle = color;
+            context.beginPath();
+            context.arc(x,y,4,0,Math.PI*2,true);
+            context.closePath();
+            context.fill()
+
+
+
+
+
+        }
+
+    }
+    function mouse_down()
+    {
+
+        flag = true;
+
+
+    }
+    function mouse_up()
+    {
+        flag = false;
+
+    }
+    function draw_fg()
+    {
+        is_fg = true;
+        is_bg = false;
+
+    }
+    function draw_bg()
+    {
+        is_bg = true;
+        is_fg = false;
+    }
+
+
+
+    //点击图片的时候调用，设置悬浮窗里面图片的资源路径等
+    function tag_material(e){
+        trace_list_x_fg = [];
+        trace_list_y_fg = [];
+        trace_list_x_bg = [];
+        trace_list_y_bg = [];
+
+        is_fg=true;
+        is_bg=false;
+
+        var modal_img = document.getElementById("modal-body-img");
+        var src = e.src
+        document.getElementById("cur_pic_name").innerText= e.name
+        modal_img.src = src;
+        //modal_img.setAttribute('src', src);
+        modal_img.className = e.getAttribute("id");
+        modal_img.style.width = "100%";
+        jcrop_api.setImage(src);
+        //jcrop_api.setOption({'boxWidth': ''})
+
+        var pre_view = document.getElementById("preview-canvas");
+        var context = pre_view.getContext("2d");
+        context.clearRect(0,0,pre_view.width,pre_view.height);
+        context.drawImage(modal_img,0,0)
+    }
+
+
+    //获得窗口向下滚动的绝对高度，不滚动的时候函数值为0
+
+
+    $(function() {
+        canvas.onmousedown=mouse_down;
+        canvas.onmousemove=draw_point;
+        canvas.onmouseup=mouse_up;
+
+
+        var
+        boundx,
+        boundy,
+
+        // Grab some information about the preview pane
+        $preview = $('#preview-pane'),
+        $pcnt = $('#preview-pane .preview-container'),
+       // $pimg = $('#preview-pane .preview-container img'),
+
+        xsize = $pcnt.width(),
+        ysize = $pcnt.height();
+
+        //类似自动分割页面的提交函数，提交绘制的轨迹列表和图片的宽高（在实际应用的时候可能图片的宽高和实际文件里面的宽高不一样，要换算成比例计算）
+        $('#submit_checkbox').click(function() {
+
+
+            var json_obj = {
+                image:document.getElementById("modal-body-img").src,
+                x:jcrop_api.tellSelect().x,
+                y:jcrop_api.tellSelect().y,
+                w:jcrop_api.tellSelect().w,
+                h:jcrop_api.tellSelect().h,
+                x_list_fg:trace_list_x_fg,
+                y_list_fg:trace_list_y_fg,
+                x_list_bg:trace_list_x_bg,
+                y_list_bg:trace_list_y_bg
+            }
+
+            var json_str = JSON.stringify(json_obj);    //将JSON对象转变成JSON格式的字符串
+            //json_str+=JSON.stringify(json_obj_points);
+
+            $.post("segment.html", json_obj);
+
+        })
+
+        function callback(json){
+            $('#response').html('test_t:'+json['test_t']);
+            alert(json['test_t']);
+        }
+
+        jcrop_api = $.Jcrop('#modal-body-img',{
+      onChange: updatePreview,
+      onSelect: updatePreview,
+      aspectRatio: xsize / ysize
+    },function(){
+      // Use the API to get the real image size
+      var bounds = this.getBounds();
+      boundx = bounds[0];
+      boundy = bounds[1];
+      // Store the API in the jcrop_api variable
+
+      // Move the preview into the jcrop container for css positioning
+      $preview.appendTo(jcrop_api.ui.holder);
+    });
+        jcrop_api.setOptions({bgColor: 'transparent', 'boxWidth': $('#modal-body').width()});
+        function updatePreview(c)
+    {
+
+      if (parseInt(c.w) > 0)
+      {
+        var rx = xsize / c.w;
+        var ry = ysize / c.h;
+
+
+
+
+      }
+        var w = jcrop_api.tellSelect().w;
+        var h = jcrop_api.tellSelect().h;
+        var x = jcrop_api.tellSelect().x;
+        var y = jcrop_api.tellSelect().y;
+
+
+
+        var modal_img = document.getElementById("modal-body-img");
+        var pre_view = document.getElementById("preview-canvas");
+        var context = pre_view.getContext("2d");
+        context.clearRect(0,0,pre_view.width,pre_view.height);
+        context.drawImage(modal_img,x,y,w,h,0,0,pre_view.width,pre_view.height);
+
+
+    };
+
+    });
+    function getScrollTop()
+    {
+        var scrollTop=0;
+        if(document.documentElement&&document.documentElement.scrollTop)
+        {
+            scrollTop=document.documentElement.scrollTop;
+        }
+        else if(document.body)
+        {
+            scrollTop=document.body.scrollTop;
+        }
+        return scrollTop;
+    }
+
+</script>
+
+
+
+
+
+	</body>
+</html>

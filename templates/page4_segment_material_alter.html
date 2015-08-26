@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8" http-equiv="Content-Type" content="text/html">
+    <title>素材标注系统</title>
+
+    <link href="/static/external_css/bootstrap.min.css" rel="stylesheet">
+{#    <link href="/static/external_css/main.css" rel="stylesheet">#}
+{#    <link href="/static/external_css/demo.css" rel="stylesheet">#}
+    <link href="/static/external_css/jquery.Jcrop.css" rel="stylesheet">
+
+
+
+    <script src="/static/external_js/jquery-2.1.1.min.js"></script>
+    <script src="/static/external_js/bootstrap.min.js"></script>
+    <script src="/static/external_js/jquery.min.js"></script>
+    <script src="/static/external_js/jquery.Jcrop.js"></script>
+
+
+
+
+
+
+</head>
+<body style="position: relative">
+
+    <div class="container" style="width: 90%">
+        <div class="row" style="margin: 5% 0%;">
+
+            <div class="col-md-2">
+                <div class="panel-group" id="accordion" style="font-size: 1.2em; font-weight: 900; text-align: center;">
+                    <div class="panel panel-info">
+                        <div class="panel-heading">
+                            <a href="upload_material">上传素材</a>
+                        </div>
+                    </div>
+                    <div class="panel panel-info">
+                        <div class="panel-heading">
+                            <a data-toggle="collapse" data-parent="#accordion" href="#collapseTwo">分割素材</a>
+                        </div>
+                        <div id="collapseTwo" class="panel-collapse collapse">
+                            <div class="panel-body">
+                                <li><a href="segment_material_auto">自动分割</a></li>
+                                <li><a href="segment_material_alter">交互分割</a></li>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="panel panel-info">
+                        <div class="panel-heading">
+                            <a href="tag_material">标注素材</a>
+                        </div>
+                    </div>
+                    <div class="panel panel-info">
+                        <div class="panel-heading">
+                            <a data-toggle="collapse" data-parent="#accordion" href="#">管理素材</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-10">
+
+                <div class="panel panel-primary">
+                    <div class="panel-heading">
+                        <h3 class="panel-title">分割素材</h3>
+                    </div>
+                    <div class="panel-body">
+
+                        <p id="response"></p>
+
+                        <div class="alert alert-info">未分割图片</div>
+                        <div id="segmented_material">
+                        {% for path in non_segmented_path_list %}
+                            <div style="width: 30%; margin: 1%; display: inline-block">
+                                <a class="thumbnail" style="width: 100%; margin: 1%; display: inline-block">
+                                    <img id="{{ path }}" src="\static\material\{{ path }}" data-toggle='modal' data-target='#myModal' onclick='tag_material(this)'>
+                                </a>
+                                <li>{{ path }}</li>
+                            </div>
+                        {% endfor %}
+                        </div>
+                        <div id="non_segmented_material">
+                        <div class="alert alert-info">已分割图片</div>
+                        {% for path in segmented_path_list %}
+                            <div style="width: 30%; margin: 1%; display: inline-block">
+                            <a class="thumbnail" style="width: 100%; margin: 1%; display: inline-block">
+                                <img src="\static\material\{{ path }}">
+                            </a>
+                            <li>{{ path }}</li>
+                            </div>
+                        {% endfor %}
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+
+
+    <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" data-backdrop="static">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true" onclick="clean_pots()">
+                    &times;
+                    </button>
+                    <h4 class="modal-title" id="myModalLabel">
+                        交互分割
+                    </h4>
+                </div>
+
+
+                <div class="modal-body" id="modal-body"style="text-align:center; position: relative;overflow-x: auto">
+
+
+                    <a class="thumbnail" style="text-align:center;  width: 100%; margin: 1%; display: inline-block" >
+                        <img id="modal-body-img" src="/static/material/abc_KGDZ014.BMP" class="" style="width:100%;height:100%" />
+                    </a>
+                    <div id="preview-pane">
+                        <div class="preview-container">
+                            <canvas id = "preview-canvas"  class="jcrop-preview" alt="Preview" />
+                        </div>
+                        <button type="button" class="btn btn-default" onclick="draw_fg()">前景标记</button>
+                        <button type="button" class="btn btn-default" onclick="draw_bg()">背景标记</button>
+                    </div>
+
+
+                </div>
+
+
+                <div class="modal-footer" style="text-align: center">
+
+                    <button type="button" class="btn btn-default"
+                        data-dismiss="modal" >关闭
+                    </button>
+                    <button id="submit_checkbox" type="submit" class="btn btn-primary" data-dismiss="modal"  >确定</button>
+                </div>
+
+            </div><!-- /.modal-content -->
+        </div>
+    </div>
+
+</body>
+</html>
+
+<script type="text/javascript">
+
+    //轨迹路径列表
+    var trace_list_x_fg = [];
+    var trace_list_y_fg = [];
+    var trace_list_x_bg = [];
+    var trace_list_y_bg = [];
+
+    //判断当前是否绘制轨迹的参数
+    var trace_now = false;
+
+    //点击图片之后会出现悬浮框，下面的参数记录了悬浮框上的图片的位置和窗口滚动参数，用于绘制轨迹的时候计算轨迹的位置
+    var img_top;
+    var img_left;
+    var img_width;
+    var img_height;
+    var scroll_top;
+
+    var jcrop_api;
+    var flag = false;
+    var is_fg = false;
+    var is_bg = false;
+
+    document.ondragstart = function() {
+        return false;
+    };
+    var canvas = document.getElementById("preview-canvas");
+    var context = canvas.getContext("2d");
+    var color;
+
+    function draw_point(e)
+    {
+
+        if (flag)
+        {
+            var bbox = canvas. getBoundingClientRect();
+            var x = e.pageX-bbox.left;
+            var y = e.pageY-bbox.top-getScrollTop();
+
+            if(is_fg)
+            {
+                color = "#FFFFFF";
+                trace_list_x_fg[trace_list_x_fg.length] = parseInt(x);
+                trace_list_y_fg[trace_list_y_fg.length] = parseInt(y);
+
+            }else if(is_bg)
+            {
+                color = "#000000";
+                trace_list_x_bg[trace_list_x_bg.length] = parseInt(x);
+                trace_list_y_bg[trace_list_y_bg.length] = parseInt(y);
+
+            }
+            //var windows = document.getElementById("myModal");
+
+            //var y = e.pageY-canvas.offsetTop-windows.offsetHeight;
+
+            context.fillStyle = color;
+            context.beginPath();
+            context.arc(x,y,4,0,Math.PI*2,true);
+            context.closePath();
+            context.fill()
+
+
+
+
+
+        }
+
+    }
+    function mouse_down()
+    {
+
+        flag = true;
+
+
+    }
+    function mouse_up()
+    {
+        flag = false;
+
+    }
+    function draw_fg()
+    {
+        is_fg = true;
+        is_bg = false;
+
+    }
+    function draw_bg()
+    {
+        is_bg = true;
+        is_fg = false;
+    }
+
+
+    function get_checked_material(){
+        //获取未分割栏里勾选的图片列表
+        var segmented_material_div = document.getElementById("segmented_material")
+        var checked_list = new Array()
+
+        for (var i = 0; i < segmented_material_div.children.length; i += 1){
+            var inner_div = segmented_material_div.children[i]
+            var material_path = inner_div.children[1].textContent
+            var input = inner_div.children[2]
+            if (input.checked){
+                checked_list[checked_list.length] = material_path
+            }
+        }
+
+        for (var i = 0; i < checked_list.length; i ++){
+            alert(checked_list[i])
+        }
+        return checked_list
+    }
+
+    //点击图片的时候调用，设置悬浮窗里面图片的资源路径等
+    function tag_material(e){
+        trace_list_x_fg = [];
+        trace_list_y_fg = [];
+        trace_list_x_bg = [];
+        trace_list_y_bg = [];
+
+        is_fg=true;
+        is_bg=false;
+
+        var modal_img = document.getElementById("modal-body-img");
+        var src = "\\static\\material\\" + e.getAttribute("id");
+        modal_img.src = src;
+        //modal_img.setAttribute('src', src);
+        modal_img.className = e.getAttribute("id");
+        modal_img.style.width = "100%";
+        jcrop_api.setImage(src);
+        //jcrop_api.setOption({'boxWidth': ''})
+
+        var pre_view = document.getElementById("preview-canvas");
+        var context = pre_view.getContext("2d");
+        context.clearRect(0,0,pre_view.width,pre_view.height);
+        context.drawImage(modal_img,0,0)
+    }
+
+
+    //获得窗口向下滚动的绝对高度，不滚动的时候函数值为0
+
+
+    $(function() {
+        canvas.onmousedown=mouse_down;
+        canvas.onmousemove=draw_point;
+        canvas.onmouseup=mouse_up;
+
+
+        var
+        boundx,
+        boundy,
+
+        // Grab some information about the preview pane
+        $preview = $('#preview-pane'),
+        $pcnt = $('#preview-pane .preview-container'),
+       // $pimg = $('#preview-pane .preview-container img'),
+
+        xsize = $pcnt.width(),
+        ysize = $pcnt.height();
+
+        //类似自动分割页面的提交函数，提交绘制的轨迹列表和图片的宽高（在实际应用的时候可能图片的宽高和实际文件里面的宽高不一样，要换算成比例计算）
+        $('#submit_checkbox').click(function() {
+
+
+            var json_obj = {
+                image:document.getElementById("modal-body-img").src,
+
+
+                x:jcrop_api.tellSelect().x,
+                y:jcrop_api.tellSelect().y,
+                w:jcrop_api.tellSelect().w,
+                h:jcrop_api.tellSelect().h,
+                x_list_fg:trace_list_x_fg,
+                y_list_fg:trace_list_y_fg,
+                x_list_bg:trace_list_x_bg,
+                y_list_bg:trace_list_y_bg
+            }
+
+
+{#            var json_obj = jcrop_api.tellSelect() //JSON对象#}
+{#            var json_obj_points = {#}
+{#                x_list: trace_list_x,#}
+{#                y_list: trace_list_y#}
+{##}
+{#            };#}
+            debugger
+
+            var json_str = JSON.stringify(json_obj);    //将JSON对象转变成JSON格式的字符串
+            //json_str+=JSON.stringify(json_obj_points);
+
+            $.post("/tagging_system/seg_alter", json_str, callback, "json");
+
+        })
+
+        function callback(json){
+            $('#response').html('test_t:'+json['test_t']);
+            alert(json['test_t']);
+        }
+
+        jcrop_api = $.Jcrop('#modal-body-img',{
+      onChange: updatePreview,
+      onSelect: updatePreview,
+      aspectRatio: xsize / ysize
+    },function(){
+      // Use the API to get the real image size
+      var bounds = this.getBounds();
+      boundx = bounds[0];
+      boundy = bounds[1];
+      // Store the API in the jcrop_api variable
+
+      // Move the preview into the jcrop container for css positioning
+      $preview.appendTo(jcrop_api.ui.holder);
+    });
+        jcrop_api.setOptions({bgColor: 'transparent', 'boxWidth': $('#modal-body').width()});
+        function updatePreview(c)
+    {
+
+      if (parseInt(c.w) > 0)
+      {
+        var rx = xsize / c.w;
+        var ry = ysize / c.h;
+
+
+
+
+{#        $pimg.css({#}
+{#          width: Math.round(rx * boundx) + 'px',#}
+{#          height: Math.round(ry * boundy) + 'px',#}
+{#          marginLeft: '-' + Math.round(rx * c.x) + 'px',#}
+{#          marginTop: '-' + Math.round(ry * c.y) + 'px'#}
+{#        });#}
+      }
+        var w = jcrop_api.tellSelect().w;
+        var h = jcrop_api.tellSelect().h;
+        var x = jcrop_api.tellSelect().x;
+        var y = jcrop_api.tellSelect().y;
+
+
+
+        var modal_img = document.getElementById("modal-body-img");
+        var pre_view = document.getElementById("preview-canvas");
+        var context = pre_view.getContext("2d");
+        context.clearRect(0,0,pre_view.width,pre_view.height);
+        context.drawImage(modal_img,x,y,w,h,0,0,pre_view.width,pre_view.height);
+
+
+    };
+
+    });
+    function getScrollTop()
+    {
+        var scrollTop=0;
+        if(document.documentElement&&document.documentElement.scrollTop)
+        {
+            scrollTop=document.documentElement.scrollTop;
+        }
+        else if(document.body)
+        {
+            scrollTop=document.body.scrollTop;
+        }
+        return scrollTop;
+    }
+
+
+{#$('#modal-body-img').Jcrop();#}
+</script>

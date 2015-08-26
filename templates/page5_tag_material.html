@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8" http-equiv="Content-Type" content="text/html">
+    <title>素材标注系统</title>
+
+    <link href="/static/external_css/bootstrap.min.css" rel="stylesheet">
+    <link type="text/css" href="/static/GoogleChart/css/orgchart.css" rel="stylesheet" >
+
+    <script type="text/javascript" src="/static/GoogleChart/js/jsapi.js"></script>
+    <script src="/static/external_js/jquery-2.1.1.js"></script>
+    <script src="/static/external_js/bootstrap.min.js"></script>
+
+</head>
+<body style="-moz-user-select: none">
+
+    <div class="container" style="width: 90%">
+        <div class="row" style="margin: 5% 0%;">
+
+            <div class="col-md-2">
+                <div class="panel-group" id="accordion" style="font-size: 1.2em; font-weight: 900; text-align: center;">
+                    <div class="panel panel-info">
+                        <div class="panel-heading">
+                            <a href="upload_material">上传素材</a>
+                        </div>
+                    </div>
+                    <div class="panel panel-info">
+                        <div class="panel-heading">
+                            <a data-toggle="collapse" data-parent="#accordion" href="#collapseTwo">分割素材</a>
+                        </div>
+                        <div id="collapseTwo" class="panel-collapse collapse">
+                            <div class="panel-body">
+                                <li><a href="segment_material_auto">自动分割</a></li>
+                                <li><a href="segment_material_alter">交互分割</a></li>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="panel panel-info">
+                        <div class="panel-heading">
+                            <a href="tag_material">标注素材</a>
+                        </div>
+                    </div>
+                    <div class="panel panel-info">
+                        <div class="panel-heading">
+                            <a data-toggle="collapse" data-parent="#accordion" href="#">管理素材</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-10">
+
+                <div class="panel panel-primary">
+                    <div class="panel-heading">
+                        <h3 class="panel-title">标注素材</h3>
+                    </div>
+                    <div class="panel-body">
+
+                        <p id="response"></p>
+
+                        <div id="non_taged_path_list">
+                        </div>
+                        <div id="taged_path_list">
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+
+    <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+                    &times;
+                    </button>
+                    <h4 class="modal-title" id="myModalLabel">
+                        标记素材
+                    </h4>
+                </div>
+
+
+                <div class="modal-body" id="modal-body">
+
+                    <img id="modal-body-img" src="" class=""/>
+                    <div class="dropdown" style="margin-top: 5%; margin-left: 5%">
+                        <button type="button" class="btn dropdown-toggle btn-info" id="dropdownMenu1" data-toggle="dropdown">
+                            标记
+                            <span class="caret"></span>
+                        </button>
+                        <ul class="dropdown-menu" role="menu"  aria-labelledby="dropdownMenu1">
+                            <li role="presentation" onclick="stop_propagation(this)">
+                                <input id="checkbox1" type="checkbox" value="1" name="check_box_list" onclick="stop_propagation(this)"/>花卉
+                            </li>
+                            <li role="presentation">
+                                <input id="checkbox2" type="checkbox" value="2" name="check_box_list" />鸟类
+                            </li>
+                            <li role="presentation">
+                                <input id="checkbox3" type="checkbox" value="3" name="check_box_list" />祥云
+                            </li>
+                        </ul>
+                    </div>
+                    <input id="textbox4" type="text" class="form-control" placeholder="自定义标签">
+
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default"
+                        data-dismiss="modal">关闭
+                    </button>
+                    <button id="submit_checkbox" type="submit" class="btn btn-primary">确定</button>
+                </div>
+
+            </div><!-- /.modal-content -->
+        </div>
+    </div>
+
+
+
+</body>
+</html>
+
+<script type="text/javascript">
+
+    //这里使用了Google chart的一部分内容，用的是别人整理下来的可以离线使用的js和css，例子见我传给你的testGoogleChart文件夹
+    //里面有一些css和js的路径有点问题，我改了一下，如果要用的话最好用项目里面的GoogleChart里面的内容，不要用文件夹里的
+    //‘｛％％｝’的格式是Django模版里的语法，例如下面的row_list,是views.py传递给这个页面的参数
+    //using google chart
+    google.load("visualization", "1", {packages: ["orgchart"]});
+
+    //整理传送过来的参数，生成表格信息，放到table_array列表里，
+    var table_array = new Array()
+    {% for row_list in table_list %}
+        var row_array = new Array()
+        {% for row in row_list %}
+            var row_single = new Array()
+            var span_str = ""
+            {% for tag in row.3 %}
+                span_str = span_str + "<label class='label label-info' style='margin: 5px; padding: 2px'>{{ tag }}</label>"
+            {% endfor %}
+            row_single[0] = {v: "{{ row.0}}", f: "<p style='font-size: 1.5em;'>{{ row.0 }}</p>" +
+            "<img src='{{ row.1 }}' id='{{ row.0 }}' data-toggle='modal' data-target='#myModal' onclick='tag_material(this)' style='width: 250px'/>"
+            + span_str}
+            row_single[1] = '{{ row.2 }}'
+            row_array[row_array.length] = row_single
+        {% endfor %}
+        table_array[table_array.length] = row_array
+    {% endfor %}
+
+    google.setOnLoadCallback(drawChart);
+
+    //根据tablechart的内容绘制每一个图片树
+    function drawChart() {
+
+        for (var i = 0; i < table_array.length; i ++) {
+
+
+
+            var data = new google.visualization.DataTable();
+            data.addColumn('string', 'Name');
+            data.addColumn('string', 'Manager');
+            data.addRows(table_array[i]
+            );
+
+            var chart = document.getElementById("non_taged_path_list")
+            var well = document.createElement("div")
+            well.className = "well"
+            well.style.width = "100%"
+            well.style.overflowX = "auto"
+            chart.appendChild(well)
+            var well_chart = new google.visualization.OrgChart(well);
+            well_chart.draw(data, {allowHtml: true, allowCollapse: true, size: "large"});
+        }
+    }
+    //using google chart end
+
+    //点击图片的时候调用，设置悬浮窗里面图片的资源路径等
+    function tag_material(e){
+        debugger
+
+        var modal_img = document.getElementById("modal-body-img")
+        var src = "\\static\\material\\" + e.getAttribute("id")
+        modal_img.src = e.src
+        modal_img.className = e.getAttribute("id")
+        modal_img.style.width = "100%"
+
+    }
+
+    //点击tag的复选框的时候点完了复选框会消失，设置停止事件传递以避免复选框消失
+    function stop_propagation(e){
+        e.stopPropagation()
+    }
+
+    $(function() {
+        //提交所选图片的复选框结果传送给views.py，回调函数重新加载页面（才能显示新添加的tag）
+        $('#submit_checkbox').click(function() {
+            var reg=new RegExp("->","g")
+            var material_name = document.getElementById("modal-body-img").className.replace(reg,"/")
+        var checkbox1 = document.getElementById("checkbox1")
+        var checkbox2 = document.getElementById("checkbox2")
+        var checkbox3 = document.getElementById("checkbox3")
+        var textbox4 = document.getElementById("textbox4")
+
+        var json_obj = {
+                    material_name: material_name,
+                    checkbox1: checkbox1.checked,
+                    checkbox2: checkbox2.checked,
+                    checkbox3: checkbox3.checked,
+                    textbox4: textbox4.value
+                    };    //JSON对象
+            debugger
+
+            var json_str = JSON.stringify(json_obj);    //将JSON对象转变成JSON格式的字符串
+            $.post("/tagging_system/process_tag", json_str, callback, "json");
+        })
+
+        function callback(json){
+            location.reload()
+        }
+
+    })
+
+
+    function submit_checkbox(){
+
+
+    }
+
+</script>

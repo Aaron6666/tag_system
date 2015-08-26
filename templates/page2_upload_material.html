@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8" http-equiv="Content-Type" content="text/html">
+    <title>素材标注系统</title>
+
+    <link href="/static/external_css/bootstrap.min.css" rel="stylesheet">
+
+    <script src="/static/external_js/jquery-2.1.1.min.js"></script>
+    <script src="/static/external_js/bootstrap.min.js"></script>
+
+</head>
+<body>
+
+    <div class="container" style="width: 90%">
+        <div class="row" style="margin: 5% 0%;">
+
+            <div class="col-md-2">
+                <div class="panel-group" id="accordion" style="font-size: 1.2em; font-weight: 900; text-align: center;">
+                    <div class="panel panel-info">
+                        <div class="panel-heading">
+                            <a href="upload_material">上传素材</a>
+                        </div>
+                    </div>
+                    <div class="panel panel-info">
+                        <div class="panel-heading">
+                            <a data-toggle="collapse" data-parent="#accordion" href="#collapseTwo">分割素材</a>
+                        </div>
+                        <div id="collapseTwo" class="panel-collapse collapse">
+                            <div class="panel-body">
+                                <li><a href="segment_material_auto">自动分割</a></li>
+                                <li><a href="segment_material_alter">交互分割</a></li>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="panel panel-info">
+                        <div class="panel-heading">
+                            <a href="tag_material">标注素材</a>
+                        </div>
+                    </div>
+                    <div class="panel panel-info">
+                        <div class="panel-heading">
+                            <a  href="tag_manage_material">管理素材</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-10">
+                <div class="panel panel-primary">
+                    <div class="panel-heading">
+                        <h3 class="panel-title">上传素材</h3>
+                    </div>
+                    <div class="panel-body">
+                        <p style="font-size: 1.5em; font-weight: 900; margin: 1% 1% 4% 1%">{{ username }}，欢迎！<br></p>
+                        <p style="font-size: 1.3em; font-weight: 900; margin: 1%">请选择您需要上传的素材<br></p>
+                        <form action="/tagging_system/process_upload" method="post" enctype="multipart/form-data">
+                            {% csrf_token %}
+
+                            <input id="material" type="file" name="material" class="form-control" placeholder="material" multiple=true value="{{ form.material }}"
+                                    onchange="preImg(this.id,'imgPre');" style="width: 35%; margin: 1%">
+                            <input type="submit" class="btn btn-primary" value="确认上传" style="margin: 1%"/><br />
+
+                            {{ return_text_success }}<br>
+                            {% for success_file in success_list %}
+                                <li style="margin-left: 2%">{{ success_file }}</li>
+                            {% endfor %}
+                            {{ return_text_fail }}<br>
+                            {% for fail_file in fail_list %}
+                                <li style="margin-left: 2%">{{ fail_file }}</li>
+                            {% endfor %}
+
+                        </form>
+
+                        {% if is_repeat %}
+                            您已经上传过同样名称的这些素材了，继续上传将删除历史素材和与之相关的子素材
+                            {% for repeat_file in repeat_list %}
+                                <li style="margin-left: 2%">{{ repeat_file }}</li>
+                            {% endfor %}
+
+                            <form action="/tagging_system/upload_cover" method="post" enctype="multipart/form-data">
+                                {% csrf_token %}
+                                <input type="submit" class="btn btn-primary" value="仍然上传" style="margin: 1%"/><br />
+                            </form>
+                        {% endif %}
+
+                        <div id="img_list" class="row" style="width: 100%; margin: 1%; display: inline-block"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>
+
+<script type="text/javascript">
+    function preImg(sourceId, targetId) {
+
+
+        //预览图片
+        if (typeof FileReader == 'undefined') {
+            alert('Your browser does not support FileReader...');
+            return;
+        }
+
+        var show_img_list = document.getElementById("img_list");
+        show_img_list.innerHTML = "";
+
+
+        for (var i=0; i < document.getElementById(sourceId).files.length; i++){
+
+
+            var nameOuter = document.getElementById(sourceId).files[i].name;
+            var suffixOuter = nameOuter.split('.')[nameOuter.split('.').length-1];
+            var file_type = document.getElementById(sourceId).files[i].type;
+
+
+            debugger;
+
+            var reader = new FileReader();
+            (function test (suffix,name){
+            reader.onload = function(e) {
+
+                var src = "";
+
+                if(suffix == "zip")
+                {
+                    src = "../static/image/zip.png";
+                }else if(suffix=="jpg"||suffix=="bmp"||suffix=="JPEG"||suffix=="gif"||suffix=="BMP"||suffix=="png")
+                {
+                    src = e.target.result;
+                }
+                else
+                {
+                    src = "../static/image/illegal.jpg";
+                }
+
+                var a = document.createElement("a");
+                a.className = "thumbnail"
+                a.style.width = "30%"
+                a.style.margin = "1%"
+                a.style.display = "inline-block"
+
+                var img = document.createElement("img");
+                img.src = src;
+                img.title = name;
+
+
+                a.appendChild(img)
+                show_img_list.appendChild(a);
+            }})(suffixOuter,nameOuter);
+
+
+            reader.readAsDataURL(document.getElementById(sourceId).files[i]);
+
+
+        }
+
+    }
+</script>

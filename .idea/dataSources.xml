@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="DataSourceManagerImpl" format="xml" hash="2878493702">
+    <data-source source="LOCAL" name="tagging" uuid="e9df6bc7-a649-4526-a8d5-ab88456d53e3">
+      <driver-ref>sqlite.xerial</driver-ref>
+      <synchronize>true</synchronize>
+      <jdbc-driver>org.sqlite.JDBC</jdbc-driver>
+      <jdbc-url>jdbc:sqlite:I:\python_project\apps\tagging.db</jdbc-url>
+      <libraries />
+    </data-source>
+    <data-source source="LOCAL" name="tagging [2]" uuid="b2123b7d-d86a-4be5-9f8d-91a19d5528ba">
+      <driver-ref>sqlite.xerial</driver-ref>
+      <synchronize>true</synchronize>
+      <jdbc-driver>org.sqlite.JDBC</jdbc-driver>
+      <jdbc-url>jdbc:sqlite:I:\python_project\tagging.db</jdbc-url>
+      <libraries />
+    </data-source>
+  </component>
+</project>
