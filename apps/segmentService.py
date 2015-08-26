@@ -46,7 +46,7 @@ class SegmentService(object):
         return True
 
     def test_seg_alert(self,rect,points_fg,points_bg,img_path):
-        self.convert(img_path)
+        self.convert(os.path.join(PIC_PATH,img_path))
 
         image = 255-cv2.imread('temp.jpg')
         print image.shape

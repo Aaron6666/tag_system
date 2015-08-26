@@ -23,6 +23,6 @@ class SegmentHandler(web.RequestHandler):
         args = self.request.arguments
         pagenum = int(args.get("pagenum") and int(args.get("pagenum")[0]) or 1)
         show = ShowService()
-        data_list,final_tag = show.initPicTree(pagenum)
+        data_list,final_tag,num = show.initPicTree(pagenum)
         service.cut(self.request.arguments)
-        self.render("segment.html",table_list=data_list,pagenum=final_tag and pagenum-1 or pagenum,final_tag=final_tag)
+        self.render("segment.html",table_list=data_list,pagenum=num,final_tag=final_tag)
