@@ -32,7 +32,9 @@ class SegmentService(object):
 
 
     def convert(self,img_path):#处理图，规整图片的格式
-        image = im.open(os.path.join(PIC_PATH,img_path),'r')
+        pic_path = os.path.normpath(PIC_PATH)
+        path =pic_path+img_path
+        image = im.open(path,'r')
         if image.mode == 'L':
             img_temp = image.convert('RGB')
         if image.mode == 'RGBA':
@@ -46,7 +48,7 @@ class SegmentService(object):
         return True
 
     def test_seg_alert(self,rect,points_fg,points_bg,img_path):
-        self.convert(os.path.join(PIC_PATH,img_path))
+        self.convert(img_path)
 
         image = 255-cv2.imread('temp.jpg')
         print image.shape
@@ -81,11 +83,9 @@ class SegmentService(object):
         # for each in points_bg:
         #     image[each[1]][each[0]]=0
 
-        cv2.imwrite('temp2.jpg',255-image)
+        cv2.imwrite(os.path.join(CACHE_PATH,'temp2.jpg'),255-image)
         print 'a'
-        im_old = im.open('temp2.jpg')
-        print 'b'
-        print 'c'
+        im_old = im.open(os.path.join(CACHE_PATH,'temp2.jpg'))
         print rect[0],rect[1],rect[0]+rect[2],rect[1]+rect[3]
         im_new = im_old.crop((rect[0],rect[1],rect[0]+rect[2],rect[1]+rect[3]))
 

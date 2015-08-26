@@ -46,6 +46,8 @@
 }
 		</style>
 		<script type="text/javascript">
+			var array = new Array()
+			array = eval({{names}})
 $(function () {
     // Set up the chart
     var chart = new Highcharts.Chart({
@@ -68,7 +70,7 @@ $(function () {
             text: '全部标签使用数量一览'
         },
 		xAxis: {
-            categories: ['a','c','d','b']
+            categories: ['a','b','中文']
         },
         plotOptions: {
             column: {
@@ -79,7 +81,7 @@ $(function () {
         series: [{
 
 			name:"数量统计",
-            data: [29, 71, 106]
+            data: [59, 71, 30]
         }
 		]
     });
