@@ -7,7 +7,7 @@ from conf.db_conf import DBCONFIG
 
 engine = create_engine(
             DBCONFIG[0].get("dbtype")+":///"+DBCONFIG[0].get("name"),
-            echo=True
+            echo=False
         )
 Base = declarative_base()
 col = Column
