@@ -10,7 +10,7 @@ class SigninService(object):
     #检查用户是否在数据库中
     #目前只匹配用户记录是否在库中，不做提示
     def CheckOutUser(self,name,psw):
-        service = DBService(User.__tablename__)
+        service = DBService(User.__tablename__,User)
         if service.searchRecord(User.name==name).password ==psw:
             return True
         return False

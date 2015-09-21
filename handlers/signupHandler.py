@@ -5,6 +5,9 @@ from tornado import web as web
 from apps.signupService import SignupService
 from model import User
 class SignupHandler(web.RequestHandler):
+    """
+    本类处理注册相关操作
+    """
     def get(self):
         self.render("signup.html")
 
@@ -15,10 +18,9 @@ class SignupHandler(web.RequestHandler):
         ars = self.request.arguments
         service = SignupService()
         service.signup(
-            username=ars.get("username"),
-            realname=ars.get("realname"),
-            password = ars.get("password"),
-            email=ars.get("email")
+            username=ars.get("username")[0],
+            realname=ars.get("realname")[0],
+            password = ars.get("password")[0],
+            email=ars.get("email")[0]
         )
-        print ars
         self.render("index.html")

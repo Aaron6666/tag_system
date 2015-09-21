@@ -9,10 +9,15 @@ class SigninHandler(web.RequestHandler):
 
     def post(self, *args, **kwargs):
         service = SigninService()
-        name = self.get_arguments("username")
-        psw = self.get_arguments("password")
-        if service.CheckOutUser(name,psw):
-            self.set_cookie(name='username',value=name)
+        name = self.get_arguments("username")[0]
+        psw = self.get_arguments("password")[0]
+        print name
+        print psw
+        try:
+            service.CheckOutUser(name,psw)
+            self.set_cookie(name='username',value=name[0])
             self.render("index.html")
-        else:
-            self.render("signin.heml")
+            print 1
+        except:
+            self.render("signin.html")
+            print 2

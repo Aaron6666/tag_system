@@ -4,8 +4,11 @@ __author__ = 'xiaobu'
 from tornado import web as web
 
 
-#处理进入系统的请求
+
 class MainFuncHandler(web.RequestHandler):
+    """
+    处理进入系统的请求
+    """
     def get(self):
         if not self.get_cookie("username"):
             self.set_cookie(name="username",value="abc",expires_days=None)
