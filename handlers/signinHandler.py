@@ -14,10 +14,17 @@ class SigninHandler(web.RequestHandler):
         print name
         print psw
         try:
-            service.CheckOutUser(name,psw)
-            self.set_cookie(name='username',value=name[0])
-            self.render("index.html")
-            print 1
+            code,result = service.CheckOutUser(name,psw)
+            if code == 1:
+                self.set_cookie(name='username',value=name)
+                self.render("index.html")
+                print "ok"
+            elif code==-1:
+                print "no user"
+                self.render("signin.html")
+            else:
+                print "wrong psw"
+                self.render("signin.html")
         except:
             self.render("signin.html")
             print 2

@@ -36,6 +36,7 @@ class Pic(Base):
     children = col(String(100),nullable=False,default='[]')
     tag_list = col(String(100),nullable=True,default='[]')
     description= col(String(200),nullable=True,default='')
+    owner = col(String(20),nullable=False,default='root')
 
 
 

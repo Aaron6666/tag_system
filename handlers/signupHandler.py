@@ -17,9 +17,10 @@ class SignupHandler(web.RequestHandler):
         #字典的value是列表，解析的时候需要注意
         ars = self.request.arguments
         service = SignupService()
+        print ars
         service.signup(
             username=ars.get("username")[0],
-            realname=ars.get("realname")[0],
+            realname=ars.get("realname")[0].decode("utf-8"),
             password = ars.get("password")[0],
             email=ars.get("email")[0]
         )

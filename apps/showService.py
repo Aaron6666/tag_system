@@ -16,8 +16,10 @@ class ShowService(object):
     def getRootPics(self):
         db = DBService(Pic,Pic.__tablename__)
         root_list = []
-        for each in  db.searchAll(Pic.parent==-1):
-            root_list.append(each.id)
+        result = db.searchAll(Pic.parent==-1)
+        if result:
+            for each in result:
+                root_list.append(each.id)
         return root_list
 
     #根据跟列表和传入的页码生成展示树的数据表
@@ -36,23 +38,27 @@ class ShowService(object):
             num = allpage_num-1
             final_tag = 1
 
-        tree_id_list = [root_list[num]]
-        data_list =  []
-        while tree_id_list:
-            pic = tree_id_list[0]
-            tree_id_list=tree_id_list[1:]
-            data = db.searchRecord(Pic.id==pic)
-            tags = eval(data.tag_list)
-            tagnames = []
-            tgService = DBService(Tag,Tag.__tablename__)
-            for each in tags:
-                tagnames.append(tgService.searchRecord(Tag.id==each).name)
-            parent_name = ''
-            if not data.parent==-1:
-                parent_name = db.searchRecord(Pic.id==data.parent).name
-            data_list.append({'name':data.name,'path':("pictures\\"+data.path).replace('\\','\\\\'),'parent_name':parent_name,'description':data.description,'taglist':tagnames})
-            tree_id_list+=eval(data.children)
-        return data_list,final_tag,num+1
+        if root_list:
+            tree_id_list = [root_list[num]]
+            data_list =  []
+            while tree_id_list:
+                pic = tree_id_list[0]
+                tree_id_list=tree_id_list[1:]
+                data = db.searchRecord(Pic.id==pic)
+                tags = eval(data.tag_list)
+                tagnames = []
+                tgService = DBService(Tag,Tag.__tablename__)
+                for each in tags:
+                    tagnames.append(tgService.searchRecord(Tag.id==each).name)
+                parent_name = ''
+                if not data.parent==-1:
+                    parent_name = db.searchRecord(Pic.id==data.parent).name
+                data_list.append({'name':data.name,'path':("pictures\\"+data.path).replace('\\','\\\\'),'parent_name':parent_name,'description':data.description,'taglist':tagnames})
+                tree_id_list+=eval(data.children)
+            return data_list,final_tag,num+1
+        else:
+            return [],final_tag,num
+
 
 
     def allTags(self):

@@ -73,8 +73,10 @@
 
 					</div><!-- /st-content-inner -->
 					<div class="container" >
+						{% if table_list%}
 						<div class="panel-heading bg-primary text-center">{{table_list[0].get('name')}}</div>
 						<div class="panel-body" id="tree"></div>
+						{% end %}
 
 
 

@@ -13,10 +13,10 @@ class SignupService(object):
 
     def signup(self,**kwargs):
         user= User(
-            name=str(kwargs.get("username")),
-            realname=str(kwargs.get("realname")),
-            password = str(kwargs.get("password")),
-            email=str(kwargs.get("email"))
+            name=kwargs.get("username"),
+            realname=kwargs.get("realname"),
+            password = kwargs.get("password"),
+            email=kwargs.get("email")
         )
         db = DBService(User,User.__tablename__)
         db.addRecord(user)

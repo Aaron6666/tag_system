@@ -9,7 +9,15 @@ from conf.db_conf import DBCONFIG
 
 
 class DBService(object):
+    """
+    提供数据库操作服务
+    增删改查
 
+
+    注意要点：
+    1. 全部采用Unicode形式保存字符串
+    2. 中文要特殊注意，只有都用Unicode的形似比较，才能找到正确的结果
+    """
     def __init__(self,type,table_name):
         self.table_name = table_name
         self.type = type
@@ -69,10 +77,15 @@ if __name__=="__main__":
     dbserer = DBService(model.Pic,model.Pic.__tablename__)
     #使用示例
     #dbserer.addRecord(model.User(name=u"zhangsan",password=u"123456"))
-    #dbserer.addRecord(model.Pic(name=u"abccddd",path=u"1cc23"))
+    #dbserer.addRecord(model.Pic(name=u"祥云图",path=u"1cc23c"))u
     #dbserer.addRecord(model.Tag(name=u"祥云"))
     #dbserer.deleteRecord(model.User.name=='zhangsan')
-    print dbserer.updateRecord(model.Pic.parent==-1,model.Pic.children,'[1,2]')
+    #print dbserer.updateRecord(model.Pic.name==u"祥云图",model.Pic.name,u"呵呵")
+    result = dbserer.searchRecord(model.Pic.name==u"呵呵")
+    if result:
+        print result.name
+    else:
+        print None
 
 
     print "***"
@@ -80,3 +93,6 @@ if __name__=="__main__":
     print "***"
     # for each in dbserer.searchRecord(model.Tag):
     #     print each.name
+
+
+
